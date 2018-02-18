@@ -3,22 +3,24 @@
 <head>
     <title>AntX System</title>
     <link rel="stylesheet" href="vendor/webix/codebase/webix.css" type="text/css" charset="utf-8">
-    <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/assets/favicon/manifest.json">
+    <link rel="stylesheet" href="vendor/webix/codebase/skins/touch.css" type="text/css" media="screen" charset="utf-8">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="assets/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="assets/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="assets/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+    <link rel="manifest" href="assets/favicon/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+    <meta name="msapplication-TileImage" content="assets/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
     <style type="text/css">
         @media (pointer: coarse) {
@@ -27,31 +29,135 @@
             }
         }
 
+        /** QR-scaner container */
+        .qr-scanner {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+        }
+
         /*.webix_template{*/
         /*background-color: antiquewhite !important;*/
         /*}*/
+        #qr-scanner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #000;
+            display: none;
+            z-index: 1000;
+        }
+
+        #preview {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <script src="vendor/jquery/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="vendor/notifyjs/notify.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/webix/codebase/webix.js" type="text/javascript" charset="utf-8"></script>
+    <script src="vendor/schmich/instascan/instascan.min.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
+
+<!-- QR Scanner -->
+<div id="qr-scanner">
+    <button type="button" class="webixtype_base">Back</button>
+    <video id="preview"></video>
+</div>
+
+<!-- Big logo template -->
+<div id="big-logo" style='display:none;'>
+    <div style="text-align: center">
+        <img src="assets/logo.jpeg" width="20%"/>
+    </div>
+</div>
+
 <script type="text/javascript" charset="utf-8">
     webix.ready(function() {
+
+
+        /**
+         * QR scan manager
+         *
+         * @param videoDomElement
+         * @constructor
+         */
+        var QrScanner = function(videoDomElement) {
+            var cameras = [];
+            var scanner;
+            var currentCamera;
+
+            Instascan.Camera.getCameras().then(function(_cameras) {
+                cameras = _cameras;
+                if(cameras.length > 0) {
+                     currentCamera = cameras[0];
+                } else {
+                    webix.message({
+                        type: "error",
+                        text: 'No cameras found.'
+                    });
+                }
+            }).catch(function(e) {
+                console.error(e);
+            });
+
+            function init() {
+                scanner = new Instascan.Scanner({
+                    video:      videoDomElement,
+                    scanPeriod: 5
+                });
+
+            }
+
+            this.start = function() {
+                if(!scanner) {
+                    init();
+                }
+
+                scanner.start(currentCamera);
+            };
+
+            this.stop = function() {
+                if(!scanner) {
+                    init();
+                }
+
+                scanner.stop(currentCamera);
+            };
+
+            this.onScan = function(callback) {
+                if(!scanner) {
+                    init();
+                }
+                return scanner.addListener('scan', callback);
+            }
+        };
+
+        var qrScanner = $("#qr-scanner");
+        var qrScanManager = new QrScanner(qrScanner.find("video")[0]);
+
+        qrScanner.find('button').on('click', function() {
+            qrScanner.hide();
+            qrScanManager.stop();
+        });
+
         if(webix.CustomScroll && !webix.env.touch) {
             webix.CustomScroll.init();
         }
 
-        var flex = {
+        webix.ui({
             margin:  10,
             padding: 0, // view:    "flexlayout",
             type:    "space",
             rows:    [{
                 align:      "center",
-                template:   "<div style='text-align: center'><img src=\"assets/logo.jpeg\" width=\"20%\"/></div>",
-                body:       {
-                    width: 200,
-                },
+                template:   "html->big-logo",
                 autoheight: true
             }, {
                 align: "center",
@@ -63,25 +169,34 @@
                         label: "Registration",
                         on:    {
                             onItemClick: function(id) {
-                                $.notify("Not implemented yet", "notice");
+
                             }
                         }
 
                     }, {
                         view:  "button",
                         label: "Scan QR-Code",
-                        on: {
+                        on:    {
                             onItemClick: function(id) {
-                                var id = $$("buttonFrame");
-                                debugger;
+                                qrScanner.show();
+                                qrScanManager.start();
+                                qrScanManager.onScan(function(content, image) {
+                                    webix.message({
+                                        type: "info",
+                                        text: "QR Code value:\n" + content
+                                    });
+
+                                });
+                                webix.message({
+                                    type: "info",
+                                    text: "Please, scan saved QR Code"
+                                });
                             }
                         }
                     }]
                 }
             }]
-        };
-
-        webix.ui(flex);
+        });
         webix.ui.fullScreen();
     })
 </script>
