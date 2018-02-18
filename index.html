@@ -270,8 +270,8 @@
                             correctLevel: QRCode.CorrectLevel.H
                         });
                         qrcode.makeCode("http://antx.io/#pin" + pin);
-                    }, 1000);
-                    return "Please save you PIN code as QR image: <div id=\"qrcode\" style=\"width:100px; height:100px; margin-top:15px;\"></div>";
+                    }, 10);
+                    return "Please save you PIN code as QR image: <div id=\"qrcode\" style=\"width:256px; height:256px; margin-top:15px;\"></div>";
                 }
             }]
         };
