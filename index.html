@@ -261,6 +261,7 @@
                 template: function(obj) {
                     window.setTimeout(function() {
                         var pin = webix.storage.local.get("pin");
+                        var math
                         var qrcode = new QRCode("qrcode", {
                             text:         "http://jindo.dev.naver.com/collie",
                             width:        128,
@@ -273,6 +274,15 @@
                     }, 10);
                     return "Please save you PIN code as QR image: <div id=\"qrcode\" style=\"width:256px; height:256px; margin-top:15px;\"></div>";
                 }
+            }, {
+                view:  "button",
+                value: "Cancel",
+                on:    {
+                    onItemClick: function(id) {
+                        $$('introFrame').show();
+                    }
+                }
+
             }]
         };
 
