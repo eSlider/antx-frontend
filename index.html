@@ -79,7 +79,9 @@
     </div>
 </div>
 
+
 <script type="text/javascript" charset="utf-8">
+
     webix.ready(function() {
 
         /**
@@ -152,8 +154,7 @@
         }
 
         var introFrame = {
-            width: 200,
-            id: "introFrame",
+            id:   "introFrame",
             rows: [{
                 view:  "button",
                 label: "Registration",
@@ -187,19 +188,20 @@
         };
 
         var setupPinFrame = {
-            width: 200,
-            id:    "setupPinFrame",
-            rows:  [{
+            id:   "setupPinFrame",
+            rows: [{
                 view:     "form",
                 id:       "setupPinForm",
                 width:    300,
                 elements: [{
                     view:  "text",
+                    type:  "password",
                     label: "Pin",
-                    name:  "pin1",
+                    name:  "pin1"
 
                 }, {
                     view:  "text",
+                    type:  "password",
                     label: "Pin",
                     name:  "pin2"
                 }, {
@@ -210,15 +212,39 @@
                         type:  "form",
                         on:    {
                             onItemClick: function(id) {
+                                var pins = $$("setupPinForm").getValues();
+                                var pin = pins.pin1;
+
+                                if(pin != pins.pin2) {
+                                    webix.message({
+                                        type: "info",
+                                        text: "Please give same PIN code"
+                                    });
+                                    return;
+                                }
+
+                                if(!pin.match(/^\d{4,8}$/)) {
+                                    webix.message({
+                                        type: "info",
+                                        text: "Please setup between 4 and 8 numbers"
+                                    });
+                                    return;
+                                }
+
+                                webix.storage.local.put("pin", pin);
+
                                 webix.message({
                                     type: "info",
-                                    text: "Pin saved!"
+                                    text: "Congratulation! Pin code is saved!"
                                 });
+                                $$('exportCodesFrame').show();
+
                             }
                         }
                     }, {
                         view:  "button",
-                        value: "Cancel",     on:    {
+                        value: "Cancel",
+                        on:    {
                             onItemClick: function(id) {
                                 $$('introFrame').show();
                             }
@@ -229,8 +255,29 @@
             }]
         };
 
+        var exportCodesFrame = {
+            id:   "exportCodesFrame",
+            rows: [{
+                template: function(obj) {
+                    window.setTimeout(function() {
+                        var pin = webix.storage.local.get("pin");
+                        var qrcode = new QRCode("qrcode", {
+                            text:         "http://jindo.dev.naver.com/collie",
+                            width:        128,
+                            height:       128,
+                            colorDark:    "#000000",
+                            colorLight:   "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                        qrcode.makeCode("http://antx.io/#pin" + pin);
+                    }, 1000);
+                    return "Please save you PIN code as QR image: <div id=\"qrcode\" style=\"width:100px; height:100px; margin-top:15px;\"></div>";
+                }
+            }]
+        };
+
         webix.ui({
-            margin:  10,
+            margin: 10,
             padding: 0, // view:    "flexlayout",
             rows:    [{
                 align:      "center",
@@ -239,7 +286,7 @@
             }, {
                 align: "center",
                 id:    "introNavigation",
-                cells: [introFrame, setupPinFrame]
+                cells: [introFrame, setupPinFrame, exportCodesFrame]
             }]
         });
         webix.ui.fullScreen();
