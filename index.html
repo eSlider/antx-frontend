@@ -507,19 +507,19 @@
                 click: function(id, event, dom) {
                     // $$("mainView").hide();
                     if(id === 'orders') {
-                        webix.ui([{
+                        webix.ui([{template:"BTC to AntX-EUR", height: 30},{
 
-                            rows:[
-                                {
-                                    view: "label",
-                                    label: "AntX-USD to BTC bids"
-                                },
-                                asksFrame,
-                                {
-                                    view: "label",
-                                    label: "AntX-USD to BTC asks"
-                                },
-                                {
+                            padding: 10,
+                            cols: [{
+                                rows: [{
+                                    view:  "label",
+                                    label: "Asks"
+                                }, asksFrame]
+                            },{template:' ', width: 1}, {
+                                rows: [{
+                                    view:  "label",
+                                    label: "Bids"
+                                }, {
                                     view:    "datatable", // id:      "orderAsks",
                                     columns: [{
                                         id:     "sum",
@@ -558,6 +558,7 @@
                                         }
                                     }
                                 }]
+                            }]
                         }], $$("mainView"));
                     }
 
