@@ -358,20 +358,27 @@
                 view:     "form",
                 id:       "setupPinForm",
                 width:    300,
-                elements: [{
-                    view:  "text",
-                    type:  "password",
-                    label: "Pin",
-                    name:  "pin1"
+                elements: [
+                    {
+                        view:  'label',
+                        label: 'Language:'
+                    }, {
+                        view:    "segmented",
+                        options: ["Russian", "English"]
+                    },{
+                        view:  "text",
+                        type:  "password",
+                        label: "Pin",
+                        name:  "pin1"
 
-                }, {
-                    view:  "text",
-                    type:  "password",
-                    label: "Pin",
-                    name:  "pin2"
-                }, {
-                    margin: 5,
-                    cols:   [{
+                    }, {
+                        view:  "text",
+                        type:  "password",
+                        label: "Repeat",
+                        name:  "pin2"
+                    }, {
+                        margin: 5,
+                        cols:   [{
                         view:  "button",
                         value: "Save",
                         type:  "form",
@@ -636,7 +643,7 @@
                 }, {
                     id:    'help',
                     value: "Help",
-                    icon:  "info"
+                    icon:  "question-circle"
                 }],
                 select:     true,
                 type:       {
