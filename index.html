@@ -59,7 +59,7 @@
             height: 100%;
         }
 
-        .wallets .webix_dataview_item{
+        .wallets .webix_dataview_item {
             margin-left: 20px;
             margin-top: 20px;
             background-color: #1b629c;
@@ -67,7 +67,7 @@
 
         .overall > .title,
         .overall > .amount,
-        .overall > .year{
+        .overall > .year {
             color: #fff;
             font-weight: bold;
         }
@@ -107,11 +107,14 @@
 </div>
 
 
-
 <script type="text/javascript" charset="utf-8">
     var antx = window.antx = {};
 
     webix.ready(function() {
+
+        // hides Safari address bar on iPhone/iPod
+        webix.ui.fullScreen();
+
         /**
          * Order manager
          *
@@ -129,7 +132,7 @@
                     orders.push({
                         sum:   sum,
                         total: sum,
-                        size:  0.914+0.001*i,
+                        size:  0.914 + 0.001 * i,
                         bid:   Math.round(Math.random() * 1000)
                     });
                 }
@@ -247,31 +250,40 @@
                 id:    1,
                 sales: 20,
                 year:  "06"
-            }, {id:    2,
+            }, {
+                id:    2,
                 sales: 55,
                 year:  "07"
-            }, {id:    3,
+            }, {
+                id:    3,
                 sales: 40,
                 year:  "08"
-            }, {id:    4,
+            }, {
+                id:    4,
                 sales: 78,
                 year:  "09"
-            }, {id:    5,
+            }, {
+                id:    5,
                 sales: 61,
                 year:  "10"
-            }, {id:    6,
+            }, {
+                id:    6,
                 sales: 35,
                 year:  "11"
-            }, {id:    7,
+            }, {
+                id:    7,
                 sales: 80,
                 year:  "12"
-            }, {id:    8,
+            }, {
+                id:    8,
                 sales: 50,
                 year:  "13"
-            }, {id:    9,
+            }, {
+                id:    9,
                 sales: 65,
                 year:  "14"
-            }, {id:    10,
+            }, {
+                id:    10,
                 sales: 59,
                 year:  "15"
             }]
@@ -317,7 +329,6 @@
             },
         };
 
-
         var introFrame = {
             id:   "introFrame",
             rows: [{
@@ -358,27 +369,26 @@
                 view:     "form",
                 id:       "setupPinForm",
                 width:    300,
-                elements: [
-                    {
-                        view:  'label',
-                        label: 'Language:'
-                    }, {
-                        view:    "segmented",
-                        options: ["Russian", "English"]
-                    },{
-                        view:  "text",
-                        type:  "password",
-                        label: "Pin",
-                        name:  "pin1"
+                elements: [{
+                    view:  'label',
+                    label: 'Language:'
+                }, {
+                    view:    "segmented",
+                    options: ["Russian", "English"]
+                }, {
+                    view:  "text",
+                    type:  "password",
+                    label: "Pin",
+                    name:  "pin1"
 
-                    }, {
-                        view:  "text",
-                        type:  "password",
-                        label: "Repeat",
-                        name:  "pin2"
-                    }, {
-                        margin: 5,
-                        cols:   [{
+                }, {
+                    view:  "text",
+                    type:  "password",
+                    label: "Repeat",
+                    name:  "pin2"
+                }, {
+                    margin: 5,
+                    cols:   [{
                         view:  "button",
                         value: "Save",
                         type:  "form",
@@ -458,44 +468,41 @@
             }]
         };
 
-        webix.ui({
-            id: 'mainMenu',
-            rows:[
-                {
-                    view: "toolbar", id:"toolbar", elements:[
-                        {
-                            view: "icon", icon: "bars",
-                            click: function(){
-                                if( $$("menu").config.hidden){
-                                    $$("menu").show();
-                                }
-                                else
-                                    $$("menu").hide();
-                            }
-                        },
-                        {
-                            view: "label",
-                            label: "AntX"
-                        },{
-                            type: "button",
-                            label: "Help"
-                        }
+        var firstStartFrame = {
+            margin:  10,
+            padding: 0, // view:    "flexlayout",
+            id:      "mainView",
+            rows:    [{
+                align:      "center",
+                template:   "html->big-logo",
+                autoheight: true
+            }, {
+                align: "center",
+                id:    "introNavigation",
+                cells: [introFrame, setupPinFrame, exportCodesFrame]
+            }]
+        };
 
-                    ]
+        webix.ui({
+            id:   'mainMenu',
+            rows: [{
+                view:     "toolbar",
+                id:       "toolbar",
+                elements: [{
+                    view:  "icon",
+                    icon:  "bars",
+                    click: function() {
+                        if($$("menu").config.hidden) {
+                            $$("menu").show();
+                        } else $$("menu").hide();
+                    }
                 }, {
-                    margin:  10,
-                    padding: 0, // view:    "flexlayout",
-                    id:      "mainView",
-                    rows:    [{
-                        align:      "center",
-                        template:   "html->big-logo",
-                        autoheight: true
-                    }, {
-                        align: "center",
-                        id:    "introNavigation",
-                        cells: [introFrame, setupPinFrame, exportCodesFrame]
-                    }]
+                    view:  "label",
+                    label: "AntX"
+                }, {
+                    id: "submenu"
                 }]
+            }, firstStartFrame]
         });
 
         webix.ui({
@@ -510,19 +517,25 @@
             },
             css:      "my_menu",
             body:     {
-                view:  "list",
-                click: function(id, event, dom) {
+                view:       "list",
+                click:      function(id, event, dom) {
                     // $$("mainView").hide();
                     if(id === 'orders') {
-                        webix.ui([{template:"BTC to AntX-EUR", height: 30},{
+                        webix.ui([{
+                            template: "BTC to AntX-EUR",
+                            height:   30
+                        }, {
 
                             padding: 10,
-                            cols: [{
+                            cols:    [{
                                 rows: [{
                                     view:  "label",
                                     label: "Asks"
                                 }, asksFrame]
-                            },{template:' ', width: 1}, {
+                            }, {
+                                template: ' ',
+                                width:    1
+                            }, {
                                 rows: [{
                                     view:  "label",
                                     label: "Bids"
@@ -570,6 +583,12 @@
                     }
 
                     if(id === 'wallets') {
+                        //
+                        // webix.ui([{
+                        //     view:  'button',
+                        //     label: 'Add'
+                        // }], $$("submenu"));
+
                         webix.ui([{
                             // id:     "walletList",
                             view:   "dataview",
@@ -582,27 +601,51 @@
                                 template: "<div class='overall'><div class='title'>#blockChain# (#id#)</div><div class='amount'>#amount#</div></div>"
                             },
                             click:  function(id, event, dom) {
-                                console.log(id)
+                                webix.ui([{
+                                    label: "<strong>" + id + "</strong>",
+                                    view:  'label'
+                                }, {
+                                    template: "Buy",
+                                    type:     "header"
+                                }, {
+                                    view:  "text",
+                                    value: '1',
+                                    label: "Amount"
+                                }, {
+                                    view:    "select",
+                                    label:   "Buy shift",
+                                    options: ["0%", "+/-10%", "2.0"]
+                                }, {
+                                    view:    "select",
+                                    label:   "Expire",
+                                    options: ["never", "after one hour", "after a day"]
+                                }, {
+                                    view:       "button",
+                                    label:      "Ask for buy",
+                                    inputWidth: 200,
+                                    align:      "center"
+                                }
+
+                                ], $$("mainView"));
                             },
                             data:   [{
                                 blockChain: 'Antx$',
-                                id:      "ANTX-USD",
+                                id:         "ANTX-USD",
                                 amount:     115.3
                             }, {
                                 blockChain: 'Bitcoin',
-                                id:      "BTC",
+                                id:         "BTC",
                                 amount:     0.5
                             }, {
                                 blockChain: 'AntX',
-                                id:      "ANTX",
+                                id:         "ANTX",
                                 amount:     0.5
                             }, {
                                 blockChain: 'Etherium',
-                                id:      "ETH",
+                                id:         "ETH",
                                 amount:     2.3
-                            },]
+                            }]
                         }], $$("mainView"));
-
                     }
 
                     if(id === 'settings') {
@@ -652,8 +695,6 @@
             }
         });
 
-
-        webix.ui.fullScreen();
     })
 </script>
 </body>
