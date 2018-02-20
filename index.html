@@ -59,6 +59,18 @@
             height: 100%;
         }
 
+        .wallets .webix_dataview_item{
+            margin-left: 20px;
+            margin-top: 20px;
+            background-color: #1b629c;
+        }
+
+        .overall > .title,
+        .overall > .amount,
+        .overall > .year{
+            color: #fff;
+            font-weight: bold;
+        }
 
     </style>
     <!--<script src="vendor/lodash/lodash.min.js" type="text/javascript" charset="utf-8"></script>-->
@@ -495,7 +507,7 @@
                 click: function(id, event, dom) {
                     // $$("mainView").hide();
                     if(id === 'orders') {
-                        webix.ui({
+                        webix.ui([{
 
                             rows:[
                                 {
@@ -545,40 +557,43 @@
                                             }, 1000);
                                         }
                                     }
-                                }
-                            ]
-                        }, $$("mainView"));
+                                }]
+                        }], $$("mainView"));
                     }
 
                     if(id === 'wallets') {
-                        webix.ui({
-                            id:     "walletList",
+                        webix.ui([{
+                            // id:     "walletList",
                             view:   "dataview",
                             select: 1,
                             css:    "wallets",
                             type:   {
                                 width:    261,
                                 height:   90,
-                                template: "<div class='overall'><div class='title'>#title#</div><div class='year'>#year# year</div> </div>"
+                                margin:   10,
+                                template: "<div class='overall'><div class='title'>#blockChain# (#id#)</div><div class='amount'>#amount#</div></div>"
+                            },
+                            click:  function(id, event, dom) {
+                                console.log(id)
                             },
                             data:   [{
                                 blockChain: 'Antx$',
-                                short:      "ANTX-USD",
+                                id:      "ANTX-USD",
                                 amount:     115.3
                             }, {
                                 blockChain: 'Bitcoin',
-                                short:      "BTC",
+                                id:      "BTC",
                                 amount:     0.5
                             }, {
                                 blockChain: 'AntX',
-                                short:      "ANTX",
+                                id:      "ANTX",
                                 amount:     0.5
                             }, {
                                 blockChain: 'Etherium',
-                                short:      "ETH",
+                                id:      "ETH",
                                 amount:     2.3
                             },]
-                        }, $$("mainView"));
+                        }], $$("mainView"));
 
                     }
                 },
