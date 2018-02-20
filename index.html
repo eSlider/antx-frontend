@@ -596,6 +596,26 @@
                         }], $$("mainView"));
 
                     }
+
+                    if(id === 'settings') {
+
+                        webix.ui([{
+                            view:  'label',
+                            label: 'Language'
+                        }, {
+                            view:    "segmented",
+                            options: ["Russian", "English"]
+                        }], $$("mainView"));
+
+                    }
+
+                    if(id === 'help') {
+
+                        webix.ui([{
+                            template: 'Please read official documentation <a href="http://antx.tech" target="antx.tech">here</a>',
+                        }], $$("mainView"));
+
+                    }
                 },
                 borderless: true,
                 scroll:     false,
@@ -612,6 +632,10 @@
                     id:    'settings',
                     value: "Settings",
                     icon:  "cog"
+                }, {
+                    id:    'help',
+                    value: "Help",
+                    icon:  "info"
                 }],
                 select:     true,
                 type:       {
