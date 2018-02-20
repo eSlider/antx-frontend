@@ -59,6 +59,7 @@
             height: 100%;
         }
     </style>
+    <!--<script src="vendor/lodash/lodash.min.js" type="text/javascript" charset="utf-8"></script>-->
     <script src="vendor/jquery/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/qrcodejs/qrcode.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="vendor/webix/codebase/webix.js" type="text/javascript" charset="utf-8"></script>
@@ -66,23 +67,71 @@
 </head>
 <body>
 
-<!-- QR Scanner -->
-<div id="qr-scanner">
-    <button type="button" class="webixtype_base">Back</button>
-    <video id="preview"></video>
-</div>
+<!-- Templates -->
+<div style="display: none">
 
-<!-- Big logo template -->
-<div id="big-logo" style='display:none;'>
-    <div style="text-align: center">
-        <img src="assets/logo.jpeg" width="20%" style="max-width: 200px"/>
+    <!-- QR Scanner -->
+    <div id="qr-scanner">
+        <button type="button" class="webixtype_base">Back</button>
+        <video id="preview"></video>
+    </div>
+
+    <!-- Big logo template -->
+    <div id="big-logo">
+        <div style="text-align: center">
+            <img src="assets/logo.jpeg" width="20%" style="max-width: 200px"/>
+        </div>
+    </div>
+
+
+    <!-- $ template -->
+    <div id="#usdtemplate">
+        <div style="text-align: center">
+            #total#
+        </div>
     </div>
 </div>
 
 
+
 <script type="text/javascript" charset="utf-8">
+    var antx = window.antx = {};
 
     webix.ready(function() {
+        /**
+         * Order manager
+         *
+         * Handle asks, bids and trade history together
+         */
+        var orderManager = antx.orders = new function() {
+
+            /*
+             */
+            this.getBids = function(callback) {
+
+                var orders = [];
+                for (var i = 0; i < 10; i++) {
+                    var sum = Math.round(Math.random() * 3339);
+                    orders.push({
+                        sum:   sum,
+                        total: sum,
+                        size:  0.914+0.001*i,
+                        bid:   Math.round(Math.random() * 1000)
+                    });
+                }
+                callback(orders)
+            };
+
+            this.getAsks = function(callback) {
+
+                callback([{
+                    sum:   3333.8,
+                    total: 3333.8,
+                    size:  0.914,
+                    bid:   10000
+                }]);
+            };
+        };
 
         /**
          * QR scan manager
@@ -153,6 +202,67 @@
             webix.CustomScroll.init();
         }
 
+        var chart = {
+            view: "chart",
+            id:   "myChart",
+
+            type:      "line",
+            value:     "#sales#",
+            onContext: {},
+            item:      {
+                borderColor: "#1293f8",
+                color:       "#ffffff"
+            },
+            line:      {
+                color: "#1293f8",
+                width: 3
+            },
+            xAxis:     {
+                template: "'#year#"
+            },
+            offset:    0,
+            yAxis:     {
+                start:    0,
+                end:      100,
+                step:     10,
+                template: function(obj) {
+                    return (obj % 20 ? "" : obj)
+                }
+            },
+            data:      [{
+                id:    1,
+                sales: 20,
+                year:  "06"
+            }, {id:    2,
+                sales: 55,
+                year:  "07"
+            }, {id:    3,
+                sales: 40,
+                year:  "08"
+            }, {id:    4,
+                sales: 78,
+                year:  "09"
+            }, {id:    5,
+                sales: 61,
+                year:  "10"
+            }, {id:    6,
+                sales: 35,
+                year:  "11"
+            }, {id:    7,
+                sales: 80,
+                year:  "12"
+            }, {id:    8,
+                sales: 50,
+                year:  "13"
+            }, {id:    9,
+                sales: 65,
+                year:  "14"
+            }, {id:    10,
+                sales: 59,
+                year:  "15"
+            }]
+        };
+
         var introFrame = {
             id:   "introFrame",
             rows: [{
@@ -184,6 +294,51 @@
                         });
                     }
                 }
+            },
+
+
+
+                {
+                view:    "datatable",
+                id: "orderAsks",
+                columns: [{
+                    id:     "sum",
+                    header: "Sum",
+                    sort:   "text"
+                }, {
+                    id:       "total",
+                    header:   "Total",
+                    sort:     "text"
+                }, {
+                    id:         "size",
+                    fillspace:  1,
+                    header:     "Size",
+                    sort:       "text"
+                }, {
+                    id:         "bid",
+                    fillspace:  1,
+                    header:     "Bid",
+                    sort:       "text"
+                }],
+
+                autoheight: true,
+                // autowidth:  true,
+                // width: 1000,
+
+                on: {
+                    onStructureLoad: function() {
+                        var dataTable = this;
+                        window.setInterval(function() {
+                            console.log("OYeah!");
+                            dataTable.clearAll();
+                            antx.orders.getBids(function(orders) {
+                                dataTable.parse(orders);
+                                dataTable.refresh();
+                            });
+                        }, 1000);
+                    }
+                },
+
             }]
         };
 
@@ -287,18 +442,73 @@
         };
 
         webix.ui({
-            margin: 10,
-            padding: 0, // view:    "flexlayout",
-            rows:    [{
-                align:      "center",
-                template:   "html->big-logo",
-                autoheight: true
-            }, {
-                align: "center",
-                id:    "introNavigation",
-                cells: [introFrame, setupPinFrame, exportCodesFrame]
-            }]
+            rows:[{
+                view:     "toolbar",
+                id:       "toolbar",
+                width: 100,
+                elements: [{
+                    view:  "icon",
+                    icon:  "bars",
+                    click: function() {
+                        if($$("menu").config.hidden) {
+                            $$("menu").show();
+                        } else $$("menu").hide();
+                    }
+                }
+
+                ]
+                },
+                {
+                    margin: 10,
+                    padding: 0, // view:    "flexlayout",
+                    rows:    [{
+                        align:      "center",
+                        template:   "html->big-logo",
+                        autoheight: true
+                    }, {
+                        align: "center",
+                        id:    "introNavigation",
+                        cells: [introFrame, setupPinFrame, exportCodesFrame]
+                    }]
+                }
+            ]
         });
+
+        webix.ui({
+            view: "sidemenu",
+            id: "menu",
+            width: 200,
+            position: "left",
+            state:function(state){
+                var toolbarHeight = $$("toolbar").$height;
+                state.top = toolbarHeight;
+                state.height -= toolbarHeight;
+            },
+            css:  "my_menu",
+            body: {
+                view:       "list",
+                borderless: true,
+                scroll:     false,
+                template: "<span class='webix_icon fa-#icon#'></span> #value#",
+                data:     [{
+                    id:    1,
+                    value: "Wallets",
+                    icon:  "user"
+                }, {id:    2,
+                    value: "Orders",
+                    icon:  "cube"
+                }, {id:    5,
+                    value: "Settings",
+                    icon:  "cog"
+                }],
+                select:   true,
+                type:     {
+                    height: 40
+                }
+            }
+        });
+
+
         webix.ui.fullScreen();
     })
 </script>
