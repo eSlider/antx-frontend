@@ -123,6 +123,7 @@ package AnTransaction.Framework <<Frame>>{
   class Currency {
     id:string - BTC, ETH, AnTransaction, etc.
     description: String
+    blockChain: Object - URL's
   }
   
   class Transaction{
@@ -170,6 +171,7 @@ package AnTransaction.Framework <<Frame>>{
   
   Bill --> Wallet
   Bill .. Transaction
+  Wallet .. Currency
   
    OrderController --> Order
    UserController --> WalletController
