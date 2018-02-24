@@ -23,7 +23,7 @@ package AnTransaction.Framework <<Frame>>{
 
   class UIController {
     # frames{} - predefined templates: {'register':{options:{}, data:{}}, ... }
-    # frameHistory[] - history template stack
+    # frameHistory: UI.Frame[] - history template stack
     
     -- <b>Permissions</b> --
     + enable() - shows last template if disabled before
@@ -43,39 +43,33 @@ package AnTransaction.Framework <<Frame>>{
     + showHome(options, data) - display home
     + getCurrentFrame() - last of frameHistory
  }
+ package Net{
  
- class UIFrame{
-  name: String
-  leftNavigation:Button[]
-  rightNavigation: Button[]
-  topNavigation: Button[]
-  template: Object
-  -- <b>Events</b> --
-  on(['show','hide'],callback:function): Add event listener
-  off(): Remove event listener
+  class XHR{
+   request:Object
+   response:Object
+  }
+  
  }
  
- 
- class NetController{
-    + query(uri, parameters): XHR - query
-    + isConnected(): boolean
-    -- <b>event handling</b> --
-    + on(['query','disconnected','connected','error'])
-    + off(['query','disconnected','connected','error'])
+ package UI{
+  class Frame{
+   name: String
+   leftNavigation:Button[]
+   rightNavigation: Button[]
+   topNavigation: Button[]
+   template: Object
+   -- <b>Events</b> --
+   on(['show','hide'],callback:function): Add event listener
+   off(): Remove event listener
+  }
  }
  
-' note left: Network API controller
 
- class OrderController{
-  +list():Order[] - orders
-  +add(options):Order
-  +cancel(order):Order
- }
- 
-'
 
-' note left: Global order controller
- 
+UIController .. Frame
+package Controllers{
+
  class UserController{
     + getOrders(currencyId, type ['sell','buy']):Order[]
     + getWallets():Wallet[]
@@ -88,9 +82,7 @@ package AnTransaction.Framework <<Frame>>{
     + lock():void
     '- Lock screen with PIN input frame `ui.disable()`
  }
-
-' note left: User own controller
-
+ 
  class WalletController {
   + list()
   + add(wallet)
@@ -100,15 +92,29 @@ package AnTransaction.Framework <<Frame>>{
   + get(id) - get wallet by ID
  }
  
- WalletController .. Transaction
- 
- class CurrencyController {
-  + list(): Currency
-  -- <b>Orders needed to create sell/buy graphs</b> --
-  + getOrders(currencyId, type ['sell','buy']): Order[]
-  -- <b>Transactions needed to create history graph --
-  + getTransactions(currencyId): Transaction[]
+ class NetController{
+    + query(uri, parameters): XHR - query
+    + isConnected(): boolean
+    -- <b>event handling</b> --
+    + on(['query','disconnected','connected','error'])
+    + off(['query','disconnected','connected','error'])
  }
+ 
+ class OrderController{
+  +list():Order[] - orders
+  +add(options):Order
+  +cancel(order):Order
+ }
+ 
+  class CurrencyController {
+   + list(): Currency
+   -- <b>Orders needed to create sell/buy graphs</b> --
+   + getOrders(currencyId, type ['sell','buy']): Order[]
+   -- <b>Transactions needed to create history graph --
+   + getTransactions(currencyId): Transaction[]
+  }
+ 
+}
  
  package Entities <<Frame>>{
   class Entity{
@@ -147,7 +153,6 @@ package AnTransaction.Framework <<Frame>>{
   
   class User extends Entity{
       #id:int
-      #userId:int
       #creationDate:timestamp
       #removeDate:timestamp
   }
@@ -179,10 +184,7 @@ package AnTransaction.Framework <<Frame>>{
    UserController --> Order
  }
  
- class XHR{
-  request:Object
-  response:Object
- }
+
  
  CurrencyController ..> NetController
  OrderController ..> NetController
@@ -190,7 +192,7 @@ package AnTransaction.Framework <<Frame>>{
  WalletController ..> NetController
 ' TransactionController --> NetController
  
- class AnTransaction {
+ class AntX {
   ui:     UIController
   net:    NetController
   user:   UserController
@@ -199,10 +201,10 @@ package AnTransaction.Framework <<Frame>>{
   currencies: CurrencyController
  }
  
- AnTransaction --> UIController
- AnTransaction --> OrderController
- AnTransaction --> UserController
- AnTransaction --> NetController
+ AntX --> UIController
+ AntX --> OrderController
+ AntX --> UserController
+ AntX --> NetController
  
 }
 
