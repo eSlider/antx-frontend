@@ -197,6 +197,12 @@ package AntX.Framework <<Frame>>{
  WalletController ..> NetController
 ' TransactionController --> NetController
  
+note right of AntX
+  JavaScript global singleton.
+  Allows access to  any controller
+  from everywhere.
+end note
+
  class AntX {
   ui:     UIController
   net:    NetController
