@@ -48,6 +48,9 @@ package AntX.Framework <<Frame>>{
   class XHR{
    request:Object
    response:Object
+   -- <b>Events</b> --
+   on(['complete','error,'abort'],callback:function): Add event listener
+   off(['complete','error,'abort']): Remove event listener
   }
   
  }
@@ -99,11 +102,13 @@ package Controllers{
     + on(['query','disconnected','connected','error'])
     + off(['query','disconnected','connected','error'])
  }
+ NetController .. XHR
  
  class OrderController{
   +list():Order[] - orders
   +add(options):Order
   +cancel(order):Order
+  
  }
  
   class CurrencyController {
@@ -174,6 +179,7 @@ package Controllers{
     #buy:Transaction
   }
   
+  Order .. User
   Bill --> Wallet
   Bill .. Transaction
   Wallet .. Currency

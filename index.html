@@ -329,8 +329,8 @@
             },
         };
 
-        var introFrame = {
-            id:   "introFrame",
+        var registrationFrame = {
+            id:   "registrationFrame",
             rows: [{
                 view:  "button",
                 label: "Registration",
@@ -428,7 +428,7 @@
                         value: "Cancel",
                         on:    {
                             onItemClick: function(id) {
-                                $$('introFrame').show();
+                                $$('registrationFrame').show();
                             }
                         }
 
@@ -461,7 +461,7 @@
                 value: "Cancel",
                 on:    {
                     onItemClick: function(id) {
-                        $$('introFrame').show();
+                        $$('registrationFrame').show();
                     }
                 }
 
@@ -479,7 +479,7 @@
             }, {
                 align: "center",
                 id:    "introNavigation",
-                cells: [introFrame, setupPinFrame, exportCodesFrame]
+                cells: [registrationFrame, setupPinFrame, exportCodesFrame]
             }]
         };
 
