@@ -19,7 +19,7 @@ skinparam{
 }
 
 
-package AnTransaction.Framework <<Frame>>{
+package AntX.Framework <<Frame>>{
 
   class UIController {
     # frames{} - predefined templates: {'register':{options:{}, data:{}}, ... }
@@ -127,7 +127,7 @@ package Controllers{
   }
   
   class Currency {
-    id:string - BTC, ETH, AnTransaction, etc.
+    id:string - BTC, ETH, AntX, etc.
     description: String
     blockChain: Object - URL's
   }
