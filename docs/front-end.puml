@@ -1,0 +1,209 @@
+@startuml
+
+skinparam{
+    class {
+        ArrowColor #666666
+        BorderColor #cccccc
+        BorderThickness 0.5
+
+    }
+
+    package {
+    	ArrowColor SeaGreen
+    	BorderColor #999999
+    	BackgroundColor #EBFCFF-#FFFFFF
+        BorderThickness 1
+        PackageFontSize 15
+    }
+    'shadowing false
+}
+
+
+package AnTransaction.Framework <<Frame>>{
+
+  class UIController {
+    # frames{} - predefined templates: {'register':{options:{}, data:{}}, ... }
+    # frameHistory[] - history template stack
+    
+    -- <b>Permissions</b> --
+    + enable() - shows last template if disabled before
+    + disable() - shows PIN block screen
+    
+    -- <b>Loading</b> --
+    + showProgress(percent) - Block screen and shows load progress
+    + hideProgress() - Remove loading blocking
+    
+    -- <b>Navigation</b> --
+    # setNavigation(leftButtons, rightButtons, options)
+    
+    -- <b>Frames</b> --
+    + export(data:String, description:HTML, backButtonFrameName:String = null) - Show QR-Code export screen
+    + scanQR(onScanCompleteCallback: function) - Show scanner video screen
+    + show(template, options, data) - change template
+    + showHome(options, data) - display home
+    + getCurrentFrame() - last of frameHistory
+ }
+ 
+ class UIFrame{
+  name: String
+  leftNavigation:Button[]
+  rightNavigation: Button[]
+  topNavigation: Button[]
+  template: Object
+  -- <b>Events</b> --
+  on(['show','hide'],callback:function): Add event listener
+  off(): Remove event listener
+ }
+ 
+ 
+ class NetController{
+    + query(uri, parameters): XHR - query
+    + isConnected(): boolean
+    -- <b>event handling</b> --
+    + on(['query','disconnected','connected','error'])
+    + off(['query','disconnected','connected','error'])
+ }
+ 
+' note left: Network API controller
+
+ class OrderController{
+  +list():Order[] - orders
+  +add(options):Order
+  +cancel(order):Order
+ }
+ 
+'
+
+' note left: Global order controller
+ 
+ class UserController{
+    + getOrders(currencyId, type ['sell','buy']):Order[]
+    + getWallets():Wallet[]
+    + getBills():Bill[]
+    -- access --
+    + setPIN(pin):bool
+    + hasPIN():bool
+    + isAuthorized():bool
+    + login(pin):bool
+    + lock():void
+    '- Lock screen with PIN input frame `ui.disable()`
+ }
+
+' note left: User own controller
+
+ class WalletController {
+  + list()
+  + add(wallet)
+  + getOrders():Order[]
+  + getTransactions():Transaction[]
+  + remove(wallet)
+  + get(id) - get wallet by ID
+ }
+ 
+ WalletController .. Transaction
+ 
+ class CurrencyController {
+  + list(): Currency
+  -- <b>Orders needed to create sell/buy graphs</b> --
+  + getOrders(currencyId, type ['sell','buy']): Order[]
+  -- <b>Transactions needed to create history graph --
+  + getTransactions(currencyId): Transaction[]
+ }
+ 
+ package Entities <<Frame>>{
+  class Entity{
+    #id:int
+    #creationDate:timestamp
+    #removeDate:timestamp
+  }
+  class UserEntity  extends Entity{
+    #userId:int
+  }
+  
+  class Currency {
+    id:string - BTC, ETH, AnTransaction, etc.
+    description: String
+  }
+  
+  class Transaction{
+    #id:int
+    #desciption
+    #creationDate:timestamp
+    #sender: Wallet
+    #receiver: Wallet
+    #amount: float = 0
+  }
+ 
+  class Order extends UserEntity{
+      #id:int
+      #userId:int
+      #creationDate:timestamp
+      #removeDate:timestamp
+      --
+      #buy: Currency
+      #sell: Currency
+  }
+  
+  class User extends Entity{
+      #id:int
+      #userId:int
+      #creationDate:timestamp
+      #removeDate:timestamp
+  }
+  
+  class Wallet extends UserEntity{
+      #id:int
+      #name:String - User own naming
+      #userId:int
+      #currencyId: int
+      #creationDate:timestamp
+      #address:String
+  }
+  
+  class Bill extends UserEntity{
+    #wallet: Wallet
+    #order: Wallet
+    #creationDate: timestamp
+    #sell:Transaction
+    #buy:Transaction
+  }
+  
+  Bill --> Wallet
+  Bill .. Transaction
+  
+   OrderController --> Order
+   UserController --> WalletController
+   UserController --> User
+   UserController --> Order
+ }
+ 
+ class XHR{
+  request:Object
+  response:Object
+ }
+ 
+ CurrencyController ..> NetController
+ OrderController ..> NetController
+ UserController ..> NetController
+ WalletController ..> NetController
+' TransactionController --> NetController
+ 
+ class AnTransaction {
+  ui:     UIController
+  net:    NetController
+  user:   UserController
+  -- global --
+  orders: OrderController
+  currencies: CurrencyController
+ }
+ 
+ AnTransaction --> UIController
+ AnTransaction --> OrderController
+ AnTransaction --> UserController
+ AnTransaction --> NetController
+ 
+}
+
+
+
+@enduml
