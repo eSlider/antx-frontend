@@ -21,6 +21,21 @@ skinparam{
 
 package AntX.Framework <<Frame>>{
 
+
+ package Net{
+ 
+  class XHR{
+   request:Object
+   response:Object
+   -- <b>Events</b> --
+   on(['complete','error,'abort'],callback:function): Add event listener
+   off(['complete','error,'abort']): Remove event listener
+  }
+  
+ }
+ 
+ package Controllers{
+
   class UIController {
     # frames{} - predefined templates: {'register':{options:{}, data:{}}, ... }
     # frameHistory: UI.Frame[] - history template stack
@@ -43,36 +58,7 @@ package AntX.Framework <<Frame>>{
     + showHome(options, data) - display home
     + getCurrentFrame() - last of frameHistory
  }
- package Net{
  
-  class XHR{
-   request:Object
-   response:Object
-   -- <b>Events</b> --
-   on(['complete','error,'abort'],callback:function): Add event listener
-   off(['complete','error,'abort']): Remove event listener
-  }
-  
- }
- 
- package UI{
-  class Frame{
-   name: String
-   leftNavigation:Button[]
-   rightNavigation: Button[]
-   topNavigation: Button[]
-   template: Object
-   -- <b>Events</b> --
-   on(['show','hide'],callback:function): Add event listener
-   off(): Remove event listener
-  }
- }
- 
-
-
-UIController .. Frame
-package Controllers{
-
  class UserController{
     + getOrders(currencyId, type ['sell','buy']):Order[]
     + getWallets():Wallet[]
@@ -118,8 +104,8 @@ package Controllers{
    -- <b>Transactions needed to create history graph --
    + getTransactions(currencyId): Transaction[]
   }
- 
-}
+  
+ }
  
  package Entities <<Frame>>{
   class Entity{
@@ -190,6 +176,19 @@ package Controllers{
    UserController --> Order
  }
  
+  package UI{
+   class Frame{
+    name: String
+    leftNavigation:Button[]
+    rightNavigation: Button[]
+    topNavigation: Button[]
+    template: Object
+    -- <b>Events</b> --
+    on(['show','hide'],callback:function): Add event listener
+    off(): Remove event listener
+   }
+  }
+ 
 
  
  CurrencyController ..> NetController
@@ -211,7 +210,8 @@ package Controllers{
  AntX --> OrderController
  AntX --> UserController
  AntX --> NetController
- 
+ UIController .... Frame
+
 }
 
 
