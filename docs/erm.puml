@@ -1,0 +1,91 @@
+@startuml
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>: <i>unique</i> int
+!define secondary_key(x) <u>x</u>: int
+hide methods
+hide stereotypes
+
+table(User) {
+  primary_key(id)
+  name:string
+  email:string
+  -- encoded hash --
+  pass:string
+  --
+  birthDay:datetime
+  -- timestamps --
+  createdAt:timestamp
+  deletedAt:timestamp
+  blockedAt:timestamp
+}
+
+table(Session) {
+  primary_key(id)
+  userId:
+  key:
+  createDate:timestamp
+}
+
+  table(Referrer)  {
+    primary_key(id)
+    secondary_key(hash): String
+    secondary_key(existingUserId):int
+    secondary_key(refferedUserId):int
+  }
+Referrer "*" .. "1" User
+Session "*" .. "1" User
+Wallet "*" .. "1" User
+
+  table(Wallet) {
+    primary_key(id)
+    secondary_key(currencyId):int
+    secondary_key(userId):int
+    -- pubic key --
+    address:  String
+    settings: JSON|Blob
+    -- time --
+    createDate:timestamp
+  }
+  
+  Wallet "<b>currencyId</b> *" ..> "<b>id</b> 1" Currency
+  
+  table(Order) {
+    primary_key(id)
+    secondary_key(sellTxId):int
+    secondary_key(buyTxId):int
+    createDate:timestamp
+  }
+
+  Order "<b>sellTxId</b> 1" ..> "<b>id</b> 1" Transaction
+  Order "<b>buyTxId</b> 1" ...> "<b>id</b> 1" Transaction
+
+  
+  table(Transaction) {
+    primary_key(id)
+    secondary_key(senderWalletId):int
+    secondary_key(receiverWalletId):int
+    amount:float
+    --timestamps--
+    createDate:timestamp
+  }
+  
+  table(Bill) {
+    primary_key(id)
+    secondary_key(orderId):int
+    secondary_key(txId):int
+  }
+  
+  Bill .. Transaction
+  Bill . Order
+ 
+   Transaction "<b>senderWalletId</b> *" ...> "<b>id</b> 1" Wallet
+'   Transaction "<b>receiverWalletId</b> *" ...> "<b>id</b> 1" Wallet
+
+  
+  table(Currency) {
+    primary_key(id)
+    createDate:timestamp
+  }
+
+
+@enduml
