@@ -1,0 +1,16 @@
+/*body{*/
+  /*max-width: 1500px;*/
+  /*margin: 0 auto;*/
+/*}*/
+
+.webix_view.webix_form{
+  /*background-color: #f7f7f7;*/
+  /*border-radius: 4px;*/
+  /*box-shadow: 0px 3px 6px #ccc;*/
+  /*position: absolute;*/
+}
+
+.webix_el_box > input{
+  background-color: #eeeeee;
+  border-radius: 4px;
+}
