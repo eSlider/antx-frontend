@@ -49,7 +49,7 @@ package AntX.Framework <<Frame>>{
     + hideProgress() - Remove loading blocking
     
     -- <b>Navigation</b> --
-    # setNavigation(leftButtons, rightButtons, options)
+    # setNavigation(topButtons, bottomButtons, options)
     
     -- <b>Frames</b> --
     + export(data:String, description:HTML, backButtonFrameName:String = null) - Show QR-Code export screen
