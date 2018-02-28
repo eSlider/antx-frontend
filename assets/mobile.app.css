@@ -1,10 +1,45 @@
-
-.webix_el_box > input {
-  background-color: #eeeeee;
-  border-radius: 4px;
-}
-
+/**
+  Style guide lines:
+  https://docs.webix.com/desktop__datatree_css.html
+ */
 .topTitle {
   padding-top: 8px;
   font-weight: bold;
+}
+
+#videoScannerPreview {
+  background-color: #ccc0c0c0;
+  display: block;
+  width: 80%;
+  height: 85%;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 10%;
+  position: relative;
+}
+
+#videoScannerPreview .scannerHelper {
+  background-color: #cc0d0d0d;
+}
+
+.webix_el_select select{
+  padding-left: 5px;
+  padding-right: 5px;
+  line-height: 15px;
+  box-shadow: 0 0px 5px #949494 inset;
+}
+
+.webix_el_box > input{
+  box-shadow: 0 0px 5px #949494 inset;
+  border-radius: 4px;
+}
+
+@media (orientation: landscape) {
+  #videoScannerPreview {
+    width: 90%;
+    height: 70%;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 5%;
+  }
 }
