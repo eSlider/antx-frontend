@@ -61,7 +61,7 @@ var antx = window.antx = new function() {
             var iconButton = {
                 view:  "button",
                 type:  "image",
-                gravity:0.6,
+                width: 40,
                 image: "assets/favicon/android-icon-36x36.png",
                 click: function() {
                     ui.goHome();
@@ -149,6 +149,9 @@ var antx = window.antx = new function() {
                     }
                 }
             }])), {
+                top:{
+                    title: "PIN setup"
+                },
                 bottom: {
                     right: [{
                         view:  "button",
@@ -195,7 +198,7 @@ var antx = window.antx = new function() {
          * Center vertical and horizontal
          */
         ui.centerTemplate = function(template) {
-            template.gravity = 4;
+            // template.gravity = 4;
             return {
                 rows: [{}, {
                     cols: [{}, template, {}]
@@ -224,38 +227,93 @@ var antx = window.antx = new function() {
         };
 
         ui.restoreAccount = function() {
+            antx.ui.showProgress({top:{title:"Restore account | Loading..."}});
             antx.net.loadOnce("vendor/schmich/instascan/instascan.min.js", function() {
 
                 Instascan.Camera.getCameras().then(function(cameras) {
-
-                    var options = _.map(cameras, function(cam) {
-                        return {
-                            id:    cam.id,
-                            value: cam.name
-                        };
-                    });
-
-                    var form = ui.createForm([{
-                        view:    "select",
-                        label:   "Select camera:",
-                        align:   "right", // labelWidth: 100,
-                        options: options
-                    }]);
-
-                    if(!cameras.length) {
+                    var hasCameras = cameras.length > 0;
+                    if(!hasCameras) {
                         webix.message({
                             type: "error",
                             text: 'No cameras found.'
                         });
+                        return;
                     }
+
                     ui.show({
-                        rows: [form, {
-                            template: '<video id="preview" style="background-color: #c0c0c0; width 100%; height: 100%;"></video>'
+                        rows: [ui.createForm([{
+                            view:          "select",
+                            label:         "Select camera:",
+                            labelPosition: "left",
+                            gravity:       0.8,
+                            align:         "right",
+                            labelWidth:    "auto",
+                            options:       _.map(cameras, function(cam) {
+                                return {
+                                    id:    cam.id,
+                                    value: cam.name
+                                };
+                            }),
+                            on: {
+                                onAfterRender: function() {
+                                    var el = $(this.getNode()).find("select");
+                                    var camId = el.val();
+
+                                    function startCamera(camId) {
+                                        var videoScannerPreview = $("#videoScannerPreview");
+                                        var videoScannerPreviewDom = videoScannerPreview[0];
+                                        var scanner = $("body").data("qr-scanner");
+
+                                        if(scanner) {
+                                            scanner = new Instascan.Scanner({
+                                                video:      videoScannerPreviewDom,
+                                                scanPeriod: 5
+                                            });
+                                        } else {
+
+
+                                        $("body").data("qr-scanner",scanner);
+
+                                        scanner.addListener('scan', function(a, b, c) {
+                                            console.log(a, b, c);
+                                        });
+
+                                        var cam = _.find(cameras, {id: camId});
+                                        scanner.start(cam);
+
+                                        videoScannerPreview.find('.scannerHelper').css({
+                                            width:  (videoScannerPreview.videoWidth - 20) + "px",
+                                            height: (videoScannerPreview.videoHeight - 20) + "px"
+                                        });
+                                    }
+
+                                    el.on("change", function() {
+                                        console.log();
+                                        startCamera(el.val());
+                                    });
+
+                                    window.setTimeout(function() {
+                                        startCamera(camId);
+                                    }, 1000);
+                                }
+                            }
+                        }]), {
+                            view: "template",
+                            src:  "templates/restoreByQr.html"
                         }]
-                    })
+                    }, {
+                        top: {
+                            title: "Restore account"
+                        }
+                    });
+
+                    // $("#videoScannerPreview").css({"width": "80%"});
 
                 }).catch(function(e) {
-                    console.error(e);
+                    webix.message({
+                        type: "error",
+                        text: e
+                    });
                 });
             });
         };
@@ -267,6 +325,7 @@ var antx = window.antx = new function() {
         ui.setupApplication = function() {
             ui.show(ui.centerTemplate({
                 height:     500,
+                gravity:    0.8,
                 view:       "template",
                 src:        "templates/intro.html",
                 borderless: true
@@ -622,6 +681,7 @@ var antx = window.antx = new function() {
             var form = ui.createForm([{
                 view:    "select",
                 align:   "right", // labelWidth: 100,
+                borderless: true,
                 options: [{
                     "id":    "en",
                     "value": "English"
@@ -632,11 +692,16 @@ var antx = window.antx = new function() {
             }]);
 
             ui.show(ui.centerTemplate({
+                gravity: 4,
+                borderless: true,
                 rows: [{
                     template:   "<h1>Languge</h1>\n Please choose you  language:",
                     autoheight: true
                 }, form]
             }), {
+                top:{
+                    title: "Languge",
+                },
                 bottom: {
                     right: [{
                         view:  "button",
@@ -654,11 +719,18 @@ var antx = window.antx = new function() {
         /**
          * Show loading progress screen
          */
-        ui.showProgress = function() {
+        ui.showProgress = function(options) {
             antx.ui.show({
-                view: "template",
-                src:  "templates/loadingInProgress.html"
-            });
+                rows: [{}, {
+                    cols: [{}, {
+                        view:       "template",
+                        height:     30,
+                        width:      38,
+                        borderless: true,
+                        src:        "templates/loadingInProgress.html"
+                    }, {}]
+                }, {}]
+            },options);
         };
 
         /**
@@ -799,10 +871,19 @@ var antx = window.antx = new function() {
         }
     };
 };
-webix.attachEvent("onRotate", function(orientation) {
-    console.log("ROTATIONE: " + orientation);
+
+$(window).on("resize",function(){
+    console.log("change sizes");
+
+    if(window.innerHeight > window.innerWidth){
+        //portrait
+        console.log("portrait");
+    }else{
+        console.log("landscape");
+
+    }
 });
-//
+
 webix.ready(function() {
     webix.ui({
         id:   "app",
@@ -825,6 +906,7 @@ webix.ready(function() {
         }]
     });
 
-    // antx.ui.showProgress();
-    antx.ui.goHome();
+    // antx.ui.goHome();
+    antx.ui.restoreAccount();
+    // antx.ui.setupLanguage();
 });

@@ -8,7 +8,9 @@
 }
 
 #videoScannerPreview {
-  background-color: #ccc0c0c0;
+  background-color: #eee;
+  display: inline-block;
+  border: 1px solid #e4e4e4;
   display: block;
   width: 80%;
   height: 85%;
