@@ -480,6 +480,15 @@ var antx = window.antx = new function() {
                     bottom: {
                         home: false,
                         left: [{
+                            view:  "icon",
+                            type:  "button",
+                            icon:  "cog",
+                            click: function() {
+                                ui.setupLanguage();
+                                // TODO: show settings
+                            }
+                        }],
+                        right: [{
                             view:    "icon",
                             type:    "button",
                             value:   "Wallets",
