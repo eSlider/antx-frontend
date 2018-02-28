@@ -219,18 +219,44 @@ var antx = window.antx = new function() {
                 elementsConfig: {
                     labelPosition: 'top', // labelWidth:    100
                 },
-                elements:       elements
+                elements: elements
             };
         };
 
         ui.restoreAccount = function() {
-            jQuery.ajax({
-                url: "vendor/schmich/instascan/instascan.min.js",
-                dataType: 'script',
-                success: function(a,b,c) {
-                    debugger;
-                },
-                async: true
+            antx.net.loadOnce("vendor/schmich/instascan/instascan.min.js", function() {
+
+                Instascan.Camera.getCameras().then(function(cameras) {
+
+                    var options = _.map(cameras, function(cam) {
+                        return {
+                            id:    cam.id,
+                            value: cam.name
+                        };
+                    });
+
+                    var form = ui.createForm([{
+                        view:    "select",
+                        label:   "Select camera:",
+                        align:   "right", // labelWidth: 100,
+                        options: options
+                    }]);
+
+                    if(!cameras.length) {
+                        webix.message({
+                            type: "error",
+                            text: 'No cameras found.'
+                        });
+                    }
+                    ui.show({
+                        rows: [form, {
+                            template: '<video id="preview" style="background-color: #c0c0c0; width 100%; height: 100%;"></video>'
+                        }]
+                    })
+
+                }).catch(function(e) {
+                    console.error(e);
+                });
             });
         };
 
@@ -749,15 +775,26 @@ var antx = window.antx = new function() {
         /**
          * Load external JS once
          */
-        this.loadOnce = function(url, parameters, onComplete) {
-            var fullUrl = url + $.param(parameters);
+        this.loadOnce = function(url, onComplete, parameters) {
+            var fullUrl = url;
+
+            if(parameters) {
+                fullUrl += "?" + $.param(parameters);
+            }
+
             if(!_loaded[fullUrl]) {
                 _loaded[fullUrl] = true;
-                $.getJSON(fullUrl, function(json) {
-                    onComplete(json);
-                })
+
+                jQuery.ajax({
+                    url:      "vendor/schmich/instascan/instascan.min.js",
+                    dataType: 'script',
+                    success:  function() {
+                        onComplete();
+                    },
+                    async:    true
+                });
             } else {
-                onComplete(json);
+                onComplete();
             }
         }
     };
