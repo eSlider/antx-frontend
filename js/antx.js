@@ -254,46 +254,71 @@ var antx = window.antx = new function() {
                                     value: cam.name
                                 };
                             }),
-                            on: {
+                            on:            {
                                 onAfterRender: function() {
-                                    var el = $(this.getNode()).find("select");
-                                    var camId = el.val();
-
-                                    function startCamera(camId) {
-                                        var videoScannerPreview = $("#videoScannerPreview");
-                                        var videoScannerPreviewDom = videoScannerPreview[0];
-                                        var scanner = $("body").data("qr-scanner");
-
-                                        if(scanner) {
-                                            scanner = new Instascan.Scanner({
-                                                video:      videoScannerPreviewDom,
-                                                scanPeriod: 5
-                                            });
-                                        } else {
-
-
-                                        $("body").data("qr-scanner",scanner);
-
-                                        scanner.addListener('scan', function(a, b, c) {
-                                            console.log(a, b, c);
-                                        });
-
-                                        var cam = _.find(cameras, {id: camId});
-                                        scanner.start(cam);
-
-                                        videoScannerPreview.find('.scannerHelper').css({
-                                            width:  (videoScannerPreview.videoWidth - 20) + "px",
-                                            height: (videoScannerPreview.videoHeight - 20) + "px"
-                                        });
-                                    }
-
-                                    el.on("change", function() {
-                                        console.log();
-                                        startCamera(el.val());
-                                    });
+                                    var select = $(this.getNode()).find("select");
+                                    var camId = select.val();
+                                    var document = $(document);
 
                                     window.setTimeout(function() {
-                                        startCamera(camId);
+                                        var videoScannerPreview = $("#videoScannerPreview");
+                                        var videoScannerPreviewDom = videoScannerPreview[0];
+                                        var scanner = scanner = new Instascan.Scanner({
+                                            video:      videoScannerPreviewDom,
+                                            scanPeriod: 5
+                                        });
+                                        var onScan = function(content) {
+
+                                            try {
+                                                var settings = JSON.parse(a);
+                                                var wallets = _.get(settings, 'w', false);
+                                                var pin = _.get(settings, 'p', false);
+
+                                                // recover wallets
+                                                if(wallets) {
+                                                    var recoveredWallets = []
+                                                    _.each(wallets, function(walletInfo) {
+                                                        recoveredWallets.push({
+                                                            currencyName: walletInfo[0],
+                                                            key:          walletInfo[1],
+                                                            name:         walletInfo[2]
+                                                        });
+                                                        console.log(recoveredWallets);
+                                                    })
+
+                                                    // TODO: add wallets to
+                                                }
+
+                                                // recover pin
+                                                if(pin){
+                                                    antx.user.setPin(pin)
+                                                }
+
+                                            } catch (err) {
+                                                ui.notify(err);
+                                            }
+
+                                        };
+                                        var onDomNodeRemoved = function(e) {
+                                            var $element = $(e.target).find('video');
+                                            if($element.length) {
+                                                console.log("Element was removed YAY", $element);
+                                                scanner.removeListener('scan', onScan);
+                                                scanner.stop();
+                                                document.off('DOMNodeRemoved', onDomNodeRemoved);
+                                            }
+                                        };
+
+                                        scanner.addListener('scan', onScan);
+                                        $(document).on('DOMNodeRemoved', onDomNodeRemoved);
+
+                                        function startSelectedCamera() {
+                                            scanner.start(_.find(cameras, {id: select.val()}));
+                                        }
+
+                                        select.on("change", startSelectedCamera);
+                                        startSelectedCamera();
+
                                     }, 1000);
                                 }
                             }
