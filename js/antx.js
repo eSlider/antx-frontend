@@ -495,9 +495,10 @@ var antx = window.antx = new function() {
                         }, {
                             view:    "icon",
                             type:    "button",
-                            value:   "Exchange",
-                            click:   ui.showWallets(),
-                            icon:    "exchange",
+                            click:  function() {
+                                ui.restoreAccount();
+                            },
+                            icon:    "camera",
                             gravity: 4
                         }]
                     }
@@ -932,6 +933,4 @@ webix.ready(function() {
     });
 
     antx.ui.goHome();
-    // antx.ui.restoreAccount();
-    // antx.ui.setupLanguage();
 });
