@@ -350,7 +350,7 @@ var antx = window.antx = new function() {
         ui.setupApplication = function() {
             ui.show(ui.centerTemplate({
                 height:     500,
-                gravity:    0.8,
+                gravity:    2,
                 view:       "template",
                 src:        "templates/intro.html",
                 borderless: true
@@ -931,7 +931,7 @@ webix.ready(function() {
         }]
     });
 
-    // antx.ui.goHome();
-    antx.ui.restoreAccount();
+    antx.ui.goHome();
+    // antx.ui.restoreAccount();
     // antx.ui.setupLanguage();
 });
