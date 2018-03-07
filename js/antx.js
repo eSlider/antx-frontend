@@ -825,6 +825,73 @@ var antx = window.antx = new function() {
      * User controller
      */
     var userController = antx.user = new function() {
+
+
+        this.wallets = new function() {
+
+            var walletController = this;
+            walletController.list = function() {
+                var wallets = webix.storage.local.get("wallets");
+                if(!wallets) {
+                    wallets = [];
+                }
+                return wallets;
+            };
+
+            walletController.add = function(wallet){
+                var wallets =  walletController.list();
+                wallets.push(wallet);
+                webix.storage.local.push(wallets);
+            };
+
+            walletController.remove = function(id){
+                var wallets =  walletController.list();
+                wallets.splice(id,1);
+                webix.storage.local.push(wallets);
+            };
+
+            /**
+             * Create wallet
+             * @param args
+             * @returns {Array}
+             */
+            walletController.create = function(coinName, args) {
+                var wallet = null;
+                coinName = coinName ? coinName : "ETH";
+
+                if(coinName == "ETH"){
+                    wallet = new ethers.Wallet.createRandom();
+                    antx.ui.notify("Words:" + wallet.mnemonic);
+
+                    webix.storage.local.put("pin", pin);
+                }
+
+                return wallet;
+            };
+
+            /**
+             * Export wallet
+             * @param args
+             * @returns {Array}
+             */
+            walletController.export = function(id, args) {
+                var wallet = walletController.list()[id];
+                // todo: export.
+
+                return walletController.list();
+            };
+
+            /**
+             * Import wallet
+             * @param args
+             * @returns {Array}
+             */
+            walletController.import = function(args) {
+                // TODO: import data
+                return ;
+            };
+        };
+
         this.setPin = function(pin) {
             return webix.storage.local.put("pin", pin);
         };
