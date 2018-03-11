@@ -257,7 +257,6 @@ var antx = window.antx = new function() {
                             on:            {
                                 onAfterRender: function() {
                                     var select = $(this.getNode()).find("select");
-                                    var camId = select.val();
                                     var document = $(document);
 
                                     window.setTimeout(function() {
@@ -268,6 +267,15 @@ var antx = window.antx = new function() {
                                             scanPeriod: 5
                                         });
                                         var onScan = function(content) {
+
+                                            var isEthPrivateKey = typeof content === 'string' && content.match(/^[\da-z]{64}$/);
+
+                                            if(isEthPrivateKey) {
+                                                var wal = new ethers.Wallet('0x' + content);
+                                                antx.ui.notify("MyEthWallet address is restored!\n\nAddress: " + wal.address + "\nPV-Key:" + wal.privateKey);
+                                                antx.ui.showWallets();
+                                                return;
+                                            }
 
                                             try {
                                                 var settings = JSON.parse(a);
@@ -789,9 +797,6 @@ var antx = window.antx = new function() {
                 type:  "password", // label: "Enter a PIN:",
                 width: 100,
                 on:    {
-                    onEnter:function(){
-                      debugger;
-                    },
                     onAfterRender: function() {
                         var input = $("input", this.getNode());
                         input
@@ -876,7 +881,7 @@ var antx = window.antx = new function() {
              */
             walletController.export = function(id, args) {
                 var wallet = walletController.list()[id];
-                // todo: export.
+                // todo: export
 
                 return walletController.list();
             };
@@ -1008,5 +1013,6 @@ webix.ready(function() {
         }]
     });
 
-    antx.ui.goHome();
+    // antx.ui.goHome();
+    antx.ui.restoreAccount();
 });
