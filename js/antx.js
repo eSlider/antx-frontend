@@ -271,9 +271,25 @@ var antx = window.antx = new function() {
                                             var isEthPrivateKey = typeof content === 'string' && content.match(/^[\da-z]{64}$/);
 
                                             if(isEthPrivateKey) {
-                                                var wal = new ethers.Wallet('0x' + content);
-                                                antx.ui.notify("MyEthWallet address is restored!\n\nAddress: " + wal.address + "\nPV-Key:" + wal.privateKey);
+                                                var wallet = new ethers.Wallet('0x' + content, ethers.providers.getDefaultProvider());
+                                                antx.ui.notify("MyEthWallet address is restored!\n\nAddress: " + wallet.address + "\nPV-Key:" + wallet.privateKey);
+                                                scanner.removeListener('scan', onScan);
+                                                scanner.stop();
+                                                document.off('DOMNodeRemoved', onDomNodeRemoved);
+
+                                                antx.user.wallets.add({
+                                                    privateKey: wallet.privateKey,
+                                                    address:    wallet.getAddress(),
+                                                    blockChain: "Etherium",
+                                                    name:       "MyEthWallet",
+                                                    id:         'MyEthWallet-' + wallet.address.substr(2, 10),
+                                                    amount:     "0"
+                                                });
+
                                                 antx.ui.showWallets();
+
+                                                console.log(wallet);
+
                                                 return;
                                             }
 
@@ -599,6 +615,8 @@ var antx = window.antx = new function() {
         };
 
         ui.showWallets = function() {
+            var wallets = antx.user.wallets.list();
+
             ui.show({
                 view:   "dataview",
                 select: 1,
@@ -612,23 +630,7 @@ var antx = window.antx = new function() {
                 click:  function(id, event, dom) {
                     ui.showWallet(id);
                 },
-                data:   [{
-                    blockChain: 'Antx$',
-                    id:         "ANTX-USD",
-                    amount:     115.3
-                }, {
-                    blockChain: 'Bitcoin',
-                    id:         "BTC",
-                    amount:     0.5
-                }, {
-                    blockChain: 'AntX',
-                    id:         "ANTX",
-                    amount:     0.5
-                }, {
-                    blockChain: 'Ethereum',
-                    id:         "ETH",
-                    amount:     2.3
-                }]
+                data:   wallets
             }, {
                 top: {
                     title: "Wallets"
@@ -831,11 +833,10 @@ var antx = window.antx = new function() {
      */
     var userController = antx.user = new function() {
 
-
         this.wallets = new function() {
 
             var walletController = this;
-            walletController.list = function() {
+            this.list = function() {
                 var wallets = webix.storage.local.get("wallets");
                 if(!wallets) {
                     wallets = [];
@@ -843,16 +844,16 @@ var antx = window.antx = new function() {
                 return wallets;
             };
 
-            walletController.add = function(wallet){
-                var wallets =  walletController.list();
+            this.add = function(wallet) {
+                var wallets = walletController.list();
                 wallets.push(wallet);
-                webix.storage.local.push(wallets);
+                webix.storage.local.put("wallets", wallets);
             };
 
-            walletController.remove = function(id){
-                var wallets =  walletController.list();
-                wallets.splice(id,1);
-                webix.storage.local.push(wallets);
+            this.remove = function(id) {
+                var wallets = walletController.list();
+                wallets.splice(id, 1);
+                webix.storage.local.put("wallets", wallets);
             };
 
             /**
@@ -860,15 +861,15 @@ var antx = window.antx = new function() {
              * @param args
              * @returns {Array}
              */
-            walletController.create = function(coinName, args) {
+            this.create = function(coinName, args) {
                 var wallet = null;
                 coinName = coinName ? coinName : "ETH";
 
-                if(coinName == "ETH"){
+                if(coinName === 'ETH') {
                     wallet = new ethers.Wallet.createRandom();
                     antx.ui.notify("Words:" + wallet.mnemonic);
-
-                    webix.storage.local.put("pin", pin);
+                    walletController.add(wallet);
+                    // webix.storage.local.put("pin", pin);
                 }
 
                 return wallet;
@@ -893,7 +894,7 @@ var antx = window.antx = new function() {
              */
             walletController.import = function(args) {
                 // TODO: import data
-                return ;
+                return;
             };
         };
 
